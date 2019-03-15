@@ -102,6 +102,7 @@ type Sourcer interface {
 type Dir struct {
 	Src string
 	Destation
+	Ignore []func(pth string) bool
 }
 
 func (d *Dir) GetSrc() string {
@@ -114,9 +115,22 @@ func (s *Dir) CopyTo(dest string) (err error) {
 		return
 	}
 	src := strings.TrimSuffix(s.Src, string(os.PathSeparator)) + string(os.PathSeparator)
+
+	accept := func(pth string) bool {
+		for _, f := range s.Ignore {
+			if f(pth) {
+				return false
+			}
+		}
+		return true
+	}
+
 	return filepath.Walk(s.Src, func(path string, info os.FileInfo, err error) error {
 		if err == nil {
 			var relPath = strings.TrimPrefix(src, s.Src)
+			if !accept(relPath) {
+				return nil
+			}
 			if s.Dest != "" {
 				relPath = filepath.Join(s.Dest, relPath)
 			}
