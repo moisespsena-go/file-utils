@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/moisespsena-go/error-wrap"
-	"github.com/moisespsena-go/path-helpers"
+	path_helpers "github.com/moisespsena-go/path-helpers"
+	"github.com/pkg/errors"
 )
 
 type Destation struct {
@@ -45,10 +45,10 @@ func (s *Src) CopyTo(dest string) (err error) {
 		return
 	}
 	if err = CopyFile(s.Src, pth); err != nil {
-		return errwrap.Wrap(err, "Copy")
+		return errors.Wrap(err, "Copy")
 	}
 	if s.Info != nil {
-		return errwrap.Wrap(SetInfo(pth, *s.Info), "Set info")
+		return errors.Wrap(SetInfo(pth, *s.Info), "Set info")
 	}
 	return
 }
@@ -65,10 +65,10 @@ func (s *SrcData) CopyTo(dest string) (err error) {
 		return
 	}
 	if err = CopyBytes(s.Data, pth); err != nil {
-		return errwrap.Wrap(err, "Copy bytes")
+		return errors.Wrap(err, "Copy bytes")
 	}
 	if s.Info != nil {
-		return errwrap.Wrap(SetInfo(pth, *s.Info), "Set info")
+		return errors.Wrap(SetInfo(pth, *s.Info), "Set info")
 	}
 	return
 }
@@ -85,10 +85,10 @@ func (s *SrcReader) CopyTo(dest string) (err error) {
 		return
 	}
 	if err = CopyReader(s.Reader, pth); err != nil {
-		return errwrap.Wrap(err, "Copy bytes")
+		return errors.Wrap(err, "Copy bytes")
 	}
 	if s.Info != nil {
-		return errwrap.Wrap(SetInfo(pth, *s.Info), "Set info")
+		return errors.Wrap(SetInfo(pth, *s.Info), "Set info")
 	}
 	return
 }
@@ -136,7 +136,7 @@ func (s *Dir) CopyTo(dest string) (err error) {
 			dst := filepath.Join(dest, relPath)
 			if info.IsDir() {
 				if err = os.MkdirAll(dst, dirMode); err != nil {
-					return errwrap.Wrap(err, "MkdirAll %q", dst)
+					return errors.Wrapf(err, "MkdirAll %q", dst)
 				}
 			} else if info.Mode().IsRegular() {
 				return CopyFile(path, dst)
@@ -160,7 +160,7 @@ func CopyTree(dest string, sources []Copier) (err error) {
 
 	for i, c := range sources {
 		if err = c.CopyTo(dest); err != nil {
-			return errwrap.Wrap(err, "source #%d", i)
+			return errors.Wrapf(err, "source #%d", i)
 		}
 	}
 	return

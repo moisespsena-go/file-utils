@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/moisespsena-go/error-wrap"
+	"github.com/pkg/errors"
 )
 
 // CopyFile copies a file from src to dst. If src and dst files exist, and are
@@ -102,8 +102,8 @@ func CopyReaderInfo(in io.Reader, info os.FileInfo, dst string) (err error) {
 		}
 	}
 
-	if err = errwrap.Wrap(CopyReader(in, dst), "Copy contents"); err == nil {
-		err = errwrap.Wrap(SetInfo(dst, info), "Set info")
+	if err = errors.Wrap(CopyReader(in, dst), "Copy contents"); err == nil {
+		err = errors.Wrap(SetInfo(dst, info), "Set info")
 	}
 	return
 }
